@@ -1,0 +1,4 @@
+# This file is used to keep the uploads directory in version control
+# The directory will be empty by default, but is required for the application to function
+# This directory is kept empty in Git
+# It will store uploaded document files during application usage 

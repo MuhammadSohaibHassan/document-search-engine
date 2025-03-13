@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">Document Search Engine</h1>
+            <p class="lead">Find information quickly within your text documents.</p>
+            <div class="mt-2 text-muted">
+                <span class="badge bg-primary">{{ total_docs }} documents in database</span>
+                {% if current_user.is_authenticated %}
+                <span class="badge bg-info">{{ user_docs }} of your documents</span>
+                {% endif %}
+            </div>
+            <div class="mt-2">
+                <span class="badge bg-secondary">
+                    <i class="far fa-clock"></i> Current Time: <span class="pakistan-time">Loading...</span>
+                </span>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form action="{{ url_for('main.search') }}" method="post" class="search-form">
+                    {{ form.hidden_tag() if form }}
+                    
+                    <div class="input-group mb-3">
+                        <input type="text" id="search-input" name="query" class="form-control form-control-lg" 
+                               placeholder="Enter keywords to search..." required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Search Tips:</strong> Use double quotes for exact phrases, + for required words, - to exclude words.
+                    </div>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="partial_match" id="partial_match" 
+                                       {% if form and form.partial_match.data %}checked{% endif %} checked>
+                                <label class="form-check-label" for="partial_match">
+                                    <i class="fas fa-asterisk fa-sm"></i> Partial Matches
+                                </label>
+                                <small class="d-block text-muted">Find words containing your search terms</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="case_sensitive" id="case_sensitive" 
+                                       {% if form and form.case_sensitive.data %}checked{% endif %}>
+                                <label class="form-check-label" for="case_sensitive">
+                                    <i class="fas fa-font fa-sm"></i> Case Sensitive
+                                </label>
+                                <small class="d-block text-muted">Match exact letter case</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="global_search" id="global_search" 
+                                       {% if form and form.global_search.data %}checked{% endif %} checked>
+                                <label class="form-check-label" for="global_search">
+                                    <i class="fas fa-globe fa-sm"></i> All Documents
+                                </label>
+                                <small class="d-block text-muted">Search across all documents</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="multiple_results" id="multiple_results" 
+                                       {% if form and form.multiple_results.data %}checked{% endif %} checked>
+                                <label class="form-check-label" for="multiple_results">
+                                    <i class="fas fa-copy fa-sm"></i> Multiple Matches
+                                </label>
+                                <small class="d-block text-muted">Show documents multiple times</small>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+                <div id="spell-check-results"></div>
+                
+                <div class="text-center mt-3">
+                    <a class="btn btn-sm btn-link text-decoration-none" data-bs-toggle="collapse" href="#searchTips" role="button">
+                        <i class="fas fa-lightbulb"></i> Search Tips
+                    </a>
+                </div>
+                
+                <div class="collapse mt-2" id="searchTips">
+                    <div class="card card-body bg-light">
+                        <h6 class="mb-2">Search Tips:</h6>
+                        <ul class="mb-0 small">
+                            <li><strong>Partial Matches:</strong> Enable to find words containing your search terms (e.g., searching for "doc" will match "document")</li>
+                            <li><strong>Case Sensitivity:</strong> Enable if letter case matters (e.g., "SQL" vs "sql")</li>
+                            <li><strong>Multiple Words:</strong> Add multiple keywords to refine your search</li>
+                            <li><strong>Wildcards:</strong> Use '*' for any characters (e.g., "doc*" matches "document", "doctor")</li>
+                            <li><strong>Fuzzy Search:</strong> Add ~ to find similar words (e.g., "documnet~" will match "document")</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-center">
+            {% if not current_user.is_authenticated %}
+                <p>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    to upload and manage your documents.
+                </p>
+            {% else %}
+                <p>
+                    <a href="{{ url_for('documents.upload') }}" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-upload"></i> Upload Documents
+                    </a>
+                    <a href="{{ url_for('documents.my_documents') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-file-alt"></i> My Documents
+                    </a>
+                </p>
+            {% endif %}
+        </div>
+        
+        <div class="card mt-5">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">How it works</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="mb-3">
+                            <i class="fas fa-upload fa-3x text-primary"></i>
+                        </div>
+                        <h5>Upload Documents</h5>
+                        <p class="text-muted">Register and upload your text documents.</p>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="mb-3">
+                            <i class="fas fa-search fa-3x text-primary"></i>
+                        </div>
+                        <h5>Search Keywords</h5>
+                        <p class="text-muted">Enter keywords to find relevant information.</p>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="mb-3">
+                            <i class="fas fa-file-alt fa-3x text-primary"></i>
+                        </div>
+                        <h5>View Results</h5>
+                        <p class="text-muted">Get instant results with highlighted matches.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Real-time spell checking for search input
+    $(document).ready(function() {
+        // Get configuration from data attributes
+        const isAuthenticated = document.body.getAttribute('data-is-authenticated') === 'true';
+        const spellCheckUrl = document.body.getAttribute('data-spell-check-url');
+        const addToDictionaryUrl = document.body.getAttribute('data-add-to-dictionary-url');
+        
+        let typingTimer;
+        const doneTypingInterval = 500; // Wait 500ms after user stops typing
+        const searchInput = $('#search-input');
+        const spellCheckResults = $('#spell-check-results');
+        
+        // On keyup, start the countdown
+        searchInput.on('keyup', function() {
+            clearTimeout(typingTimer);
+            const query = $(this).val();
+            if (query.length > 2) {
+                typingTimer = setTimeout(function() {
+                    checkSpelling(query);
+                }, doneTypingInterval);
+            } else {
+                spellCheckResults.empty();
+            }
+        });
+        
+        function checkSpelling(text) {
+            $.ajax({
+                url: spellCheckUrl,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ text: text }),
+                success: function(response) {
+                    spellCheckResults.empty();
+                    const errors = response.errors;
+                    
+                    if (Object.keys(errors).length > 0) {
+                        let html = '<div class="alert alert-warning mt-3" role="alert">';
+                        html += '<h6><i class="fas fa-spell-check"></i> Possible spelling errors:</h6>';
+                        html += '<ul class="mb-0">';
+                        
+                        for (const word in errors) {
+                            const suggestions = errors[word].slice(0, 3).join(', ');
+                            html += `<li><strong>${word}</strong>: Did you mean ${suggestions}?`;
+                            
+                            // Only show "Add to dictionary" for authenticated users
+                            if (isAuthenticated) {
+                                html += ` <a href="#" class="add-to-dictionary" data-word="${word}">Add to dictionary</a>`;
+                            }
+                            
+                            html += `</li>`;
+                        }
+                        
+                        html += '</ul></div>';
+                        spellCheckResults.html(html);
+                        
+                        // Add event handlers for "Add to dictionary" links
+                        $('.add-to-dictionary').on('click', function(e) {
+                            e.preventDefault();
+                            const word = $(this).data('word');
+                            addToDictionary(word);
+                        });
+                    }
+                }
+            });
+        }
+        
+        function addToDictionary(word) {
+            $.ajax({
+                url: addToDictionaryUrl,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ word: word }),
+                success: function(response) {
+                    if (response.success) {
+                        // Re-check spelling to update the display
+                        checkSpelling(searchInput.val());
+                        
+                        // Show success message
+                        const successMsg = $('<div class="alert alert-success mt-2" role="alert"></div>')
+                            .text(response.message);
+                        
+                        spellCheckResults.prepend(successMsg);
+                        
+                        // Fade out success message after 3 seconds
+                        setTimeout(function() {
+                            successMsg.fadeOut(function() {
+                                $(this).remove();
+                            });
+                        }, 3000);
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% block head %}
+<!-- Add data attributes to body tag to pass Jinja variables to JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.setAttribute('data-is-authenticated', '{{ current_user.is_authenticated|lower }}');
+    document.body.setAttribute('data-spell-check-url', '{{ url_for("main.api_spell_check") }}');
+    document.body.setAttribute('data-add-to-dictionary-url', '{{ url_for("main.api_add_to_dictionary") }}');
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,156 @@
+/* Custom styles for Document Search Engine */
+
+/* General styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    padding-top: 10px;
+}
+
+/* Sticky navbar styling */
+.navbar.sticky-top {
+    z-index: 1030;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+/* Add background blur effect for modern browsers */
+@supports (backdrop-filter: blur(10px)) {
+    .navbar.sticky-top {
+        backdrop-filter: blur(10px);
+        background-color: rgba(13, 110, 253, 0.95); /* Slightly transparent */
+    }
+}
+
+/* Search box styling */
+.search-form .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Highlighted search results */
+.highlight {
+    background-color: #fff3cd;
+    padding: 0.1rem 0.2rem;
+    border-radius: 0.2rem;
+    font-weight: bold;
+}
+
+/* Enhanced search highlight style */
+.search-highlight {
+    background-color: #ffc107;
+    color: #212529;
+    padding: 0.1rem 0.2rem;
+    border-radius: 0.2rem;
+    font-weight: bold;
+    box-shadow: 0 0 3px rgba(0,0,0,0.2);
+}
+
+/* Search snippet styling */
+.search-snippet {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.5;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+/* Badge styling for search results */
+.badge.bg-info {
+    background-color: #0dcaf0 !important;
+    font-weight: normal;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+    margin-left: 0.5rem;
+}
+
+/* Search stats summary */
+.search-stats {
+    background-color: #e9ecef;
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.search-stats .stat {
+    display: inline-block;
+    margin-right: 1.5rem;
+    color: #495057;
+}
+
+.search-stats .stat i {
+    color: #0d6efd;
+    margin-right: 0.3rem;
+}
+
+/* Document cards */
+.document-card {
+    transition: transform 0.2s;
+}
+
+.document-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Custom button styles */
+.btn-upload {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+.btn-upload:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+    color: white;
+}
+
+/* Spell check suggestions */
+.add-to-dictionary {
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+.add-to-dictionary:hover {
+    text-decoration: underline;
+}
+
+/* Custom footer */
+footer {
+    border-top: 1px solid #dee2e6;
+}
+
+/* Admin dashboard cards */
+.admin-stat-card {
+    border-radius: 0.5rem;
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.admin-stat-card .card-body {
+    padding: 1.5rem;
+}
+
+.admin-stat-card .stat-icon {
+    font-size: 2.5rem;
+    color: #0d6efd;
+}
+
+.admin-stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+} 

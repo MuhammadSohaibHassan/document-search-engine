@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <div class="card shadow-sm">
+            <div class="card-body p-5">
+                <h1 class="text-danger mb-4">
+                    <i class="fas fa-exclamation-triangle"></i> Error
+                </h1>
+                <h2 class="mb-4">{{ message }}</h2>
+                <p class="mb-4">
+                    Something went wrong. Please try again or go back to the home page.
+                </p>
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

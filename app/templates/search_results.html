@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <h1 class="mb-4">Search Results</h1>
+        
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form action="{{ url_for('main.search') }}" method="post" class="search-form">
+                    {{ form.hidden_tag() }}
+                    <div class="input-group mb-3">
+                        <input type="text" name="query" id="search-input" class="form-control" value="{{ query }}" 
+                              placeholder="Enter keywords to search..." required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    
+                    <div class="row g-3 search-options">
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="partial_match" id="partial_match" 
+                                       {% if partial_match %}checked{% endif %}>
+                                <label class="form-check-label" for="partial_match">
+                                    <i class="fas fa-asterisk fa-sm"></i> Partial Matches
+                                </label>
+                                <small class="d-block text-muted">Find words containing your search terms</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="case_sensitive" id="case_sensitive" 
+                                       {% if case_sensitive %}checked{% endif %}>
+                                <label class="form-check-label" for="case_sensitive">
+                                    <i class="fas fa-font fa-sm"></i> Case Sensitive
+                                </label>
+                                <small class="d-block text-muted">Match exact letter case</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="global_search" id="global_search" 
+                                       {% if global_search %}checked{% endif %}>
+                                <label class="form-check-label" for="global_search">
+                                    <i class="fas fa-globe fa-sm"></i> All Documents
+                                </label>
+                                <small class="d-block text-muted">Search across all documents</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="multiple_results" id="multiple_results" 
+                                       {% if multiple_results %}checked{% endif %}>
+                                <label class="form-check-label" for="multiple_results">
+                                    <i class="fas fa-copy fa-sm"></i> Multiple Matches
+                                </label>
+                                <small class="d-block text-muted">Show documents multiple times</small>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+                {% if spelling_errors and spelling_errors|length > 0 %}
+                <div class="alert alert-warning mt-3" role="alert">
+                    <h6><i class="fas fa-spell-check"></i> Possible spelling errors:</h6>
+                    <ul class="mb-0">
+                        {% for word, suggestions in spelling_errors.items() %}
+                        <li>
+                            <strong>{{ word }}</strong>: Did you mean {{ suggestions|join(', ') }}?
+                            {% if current_user.is_authenticated %}
+                            <a href="#" class="add-to-dictionary" data-word="{{ word }}">Add to dictionary</a>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if results %}
+        <!-- Removed timestamp info message as requested -->
+        {% endif %}
+        
+        {% if results|length > 0 %}
+            <div class="search-stats">
+                <div class="stat"><i class="fas fa-file-alt"></i> <strong>{{ results[0].total_unique_docs }}</strong> document(s) matched</div>
+                <div class="stat"><i class="fas fa-list"></i> <strong>{{ results|length }}</strong> total matches</div>
+                <div class="stat"><i class="fas fa-database"></i> Searched <strong>{{ results[0].total_docs_in_system }}</strong> documents</div>
+                <div class="stat"><i class="fas fa-search"></i> Query: <strong>"{{ query }}"</strong></div>
+            </div>
+            
+            <div class="list-group mb-4">
+                {% for result in results %}
+                <div class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">
+                            <i class="fas fa-file-alt text-primary me-2"></i>{{ result.filename }}
+                            {% if multiple_results and result.total_matches_in_doc > 1 %}
+                            <span class="badge rounded-pill bg-info">
+                                Match {{ result.occurrence_number }}/{{ result.total_matches_in_doc }}
+                            </span>
+                            {% endif %}
+                        </h5>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            <span class="formatted-timestamp" data-raw-timestamp="{{ result.upload_date }}">{{ result.upload_date }}</span>
+                        </small>
+                    </div>
+                    <div class="search-snippet p-2 my-2 bg-light rounded border-start border-4 border-primary">
+                        {{ result.snippet|safe }}
+                    </div>
+                    <div class="mt-2">
+                        <a href="{{ url_for('main.view_document', doc_id=result.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        <a href="{{ url_for('main.download_document', doc_id=result.id) }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No documents found matching your search criteria.
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('documents.upload') }}">Upload some documents</a> to search through them.
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}">Login</a> to upload documents.
+                {% endif %}
+                
+                <div class="mt-2">
+                    <strong>Tips:</strong>
+                    <ul class="mb-0">
+                        <li>Try enabling <strong>Partial Matches</strong> for broader results</li>
+                        <li>Try disabling <strong>Case Sensitive</strong> if it's enabled</li>
+                        <li>Check for spelling errors in your search terms</li>
+                        <li>Use simpler search terms or individual keywords</li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+        
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Handle "Add to dictionary" links
+        $('.add-to-dictionary').on('click', function(e) {
+            e.preventDefault();
+            const word = $(this).data('word');
+            const element = $(this);
+            
+            $.ajax({
+                url: '{{ url_for("main.api_add_to_dictionary") }}',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ word: word }),
+                success: function(response) {
+                    if (response.success) {
+                        // Replace link with success message
+                        element.replaceWith('<span class="text-success"><i class="fas fa-check"></i> Added</span>');
+                    }
+                }
+            });
+        });
+        
+        // Auto-submit form when search options change
+        $('.search-options input[type="checkbox"]').on('change', function() {
+            if ($('#search-input').val().trim().length > 0) {
+                $(this).closest('form').submit();
+            }
+        });
+        
+        // Force timestamp formatting for search results with slight delay
+        setTimeout(function() {
+            console.log("Running delayed timestamp formatting for search results...");
+            formatSearchResultTimestamps();
+        }, 100);
+    });
+</script>
+{% endblock %} 
