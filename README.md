@@ -44,7 +44,7 @@ A powerful document search application for uploading, managing, and searching te
 ### Quick Setup
 1. **Get the code**:
    ```bash
-   git clone https://github.com/yourusername/document-search-engine.git
+   git clone https://github.com/MuhammadSohaibHassan/document-search-engine.git
    cd document-search-engine
    ```
 
